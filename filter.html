@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <title>大麻篩選</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+    .tag {
+      display: inline-block;
+      padding: 5px 10px;
+      margin: 5px 5px 5px 0;
+      background-color: #eee;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .tag.selected {
+      background-color: #007bff;
+      color: #fff;
+    }
+    .product {
+      margin-top: 10px;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>大麻好多</h1>
+
+  <h2>大麻特性：</h2>
+  <div id="filterContainer"></div>
+
+  <h2>你要的大麻：</h2>
+  <div id="productList"></div>
+
+  <script>
+    const products = [
+      { name: "OG Kush", tags: ["平靜"] },
+      { name: "Sour Diesel", tags: ["清爽"] },
+      { name: "Green Crack", tags: ["提神"] },
+      { name: "Granddaddy Purple", tags: ["鎮靜"] },
+      { name: "Aspen Assblaster(Green+甜甜圈+Addy+馬精液)", tags: ["提神", "高熱量", "觸電感", "愁眉苦臉"] },
+      { name: "Aspen Death(Green+威爾鋼)", tags: ["熱帶雷霆", "提神"] },
+      { name: "DOUNT(Green+甜甜圈)", tags: ["提神", "高熱量"] },
+      { name: "Pink Gold(Green+甜甜圈+Addy)", tags: ["提神", "高熱量", "發人深省"] },
+      { name: "Big Puke(Granddaddy+馬精液+豆子)", tags: ["鎮靜", "迷濛", "愁眉苦臉"] },
+      { name: "Wedding Cake(Granddaddy+馬精液)", tags: ["鎮靜", "愁眉苦臉"] },
+      { name: "Big Stink(OG+電池)", tags: ["平靜", "Bright-Eyed"] },
+      { name: "Bio Diamond(OG+碘+Addy+馬精液)", tags: ["Balding", "Jennerising", "觸電感", "愁眉苦臉"] },
+      { name: "OG Splooge(OG+碘+Addy)", tags: ["Balding", "Jennerising", "發人深省"] },
+      { name: "Dark Punch(OG+碘)", tags: ["Balding", "Jennerising"] },
+      { name: "California Mint(OG+馬精液)", tags: ["平靜", "愁眉苦臉"] },
+      { name: "GGEZ(Sour+感冒藥)", tags: ["清爽", "鎮靜"] },
+      { name: "Afghan Cookies(OG+紅牛+豆子+Addy)", tags: ["清爽", "提神", "瀉藥", "發人深省"] },
+      { name: "Afghan Durkle(sour+汽油+碘+辣椒+甜甜圈+馬精液+紅牛+機油+感冒藥)", tags: ["清爽", "鎮靜", "高熱量", "食慾大開", "滑溜"] },
+      { name: "Nightmare Haze(sour+汽油+碘+辣椒+甜甜圈+馬精液+紅牛)", tags: ["清爽", "欣快", "高熱量", "運動感", "Bright-Eyed"] },
+      { name: "Mega Shart(sour+汽油+碘+辣椒+甜甜圈+馬精液)", tags: ["清爽", "高熱量", "辛辣", "Bright-Eyed", "觸電感"] },
+      { name: "Death Rhino(sour+汽油+碘+辣椒+甜甜圈)", tags: ["Gingeritis", "高熱量", "辛辣", "Bright-Eyed", "發人深省"] },
+      { name: "California McLovin(sour+汽油+碘+辣椒)", tags: ["辛辣", "Bright-Eyed", "Jennerising", "發人深省"] },
+      { name: "Purple Cookies(sour+汽油+碘)", tags: ["Jennerising", "發人深省"] },
+      { name: "Shiny Assblaster(sour+汽油+碘+辣椒+甜甜圈+馬精液+紅牛+機油)", tags: ["清爽", "鎮靜", "高熱量", "運動感", "滑溜"] },
+      { name: "Banana Fruit(Green+Addy+感冒藥+止痛藥+汽油+紅牛+香蕉+電池+可樂)", tags: ["平靜", "臭味", "Paranoia", "運動感", "Bright-Eyed"] },
+      { name: "Nightmare Shart(Green+Addy+感冒藥+止痛藥+汽油+紅牛+香蕉+電池)", tags: ["平靜", "臭味", "Gingeritis", "偷偷摸摸", "運動感"] },
+      { name: "OG Rhino(Green+Addy+感冒藥+止痛藥+汽油+紅牛+香蕉)", tags: ["平靜", "臭味", "食慾大開", "Gingeritis", "偷偷摸摸"] },
+      { name: "Girl Scout Stink(Green+Addy+感冒藥+止痛藥+汽油+紅牛)", tags: ["平靜", "臭味", "食慾大開", "有毒", "偷偷摸摸"] },
+      { name: "Hairy Crystal(Green+Addy+感冒藥+止痛藥+汽油)", tags: ["平靜", "臭味", "熱帶雷霆", "有毒", "鎮靜"] },
+      { name: "Sweet Urkle(Green+Addy+感冒藥+止痛藥)", tags: ["Paranoia", "Gingeritis", "偷偷摸摸", "鎮靜"] },
+      { name: "Ice Cream Cookies(Green+Addy+感冒藥)", tags: ["Gingeritis", "提神", "鎮靜"] },
+      { name: "Wedding Shart(Green+Addy)", tags: ["提神", "發人深省"] },
+      { name: "Dark Stink(OG+馬精液+辣椒+香蕉+可樂+紅牛)", tags: ["Paranoia", "清爽", "欣快", "提神", "運動感"] },
+      { name: "Nightmare Crack(OG+馬精液+辣椒+香蕉+可樂)", tags: ["Paranoia", "清爽", "提神", "辛辣", "發人深省"] },
+      { name: "Sweet Punch(OG+馬精液+辣椒+香蕉)", tags: ["清爽", "Gingeritis", "偷偷摸摸", "辛辣"] },
+      { name: "Pink Piss(OG+馬精液+辣椒)", tags: ["平靜", "辛辣", "愁眉苦臉"] },
+      { name: "Death Stink(OG+碘+Addy+馬精液+Addy)", tags: ["Balding", "Jennerising", "發人深省", "觸電感", "愁眉苦臉"] },
+      { name: "Sexy Slime(OG+馬精液+辣椒+香蕉+可樂+紅牛+豆子+汽油+碘+感冒藥)", tags: ["Paranoia", "欣快", "Gingeritis", "偷偷摸摸", "誘發癲癇"] },
+      { name: "Thick Ass(OG+馬精液+辣椒+香蕉+可樂+紅牛+豆子+汽油+碘)", tags: ["Paranoia", "偷偷摸摸", "瀉藥", "誘發癲癇", "Balding"] },
+      { name: "Gorilla Diamond(OG+馬精液+辣椒+香蕉+可樂+紅牛+豆子+汽油)", tags: ["平靜", "清爽", "欣快", "有毒", "瀉藥"] },
+      { name: "Ice Cream Bud(OG+馬精液+辣椒+香蕉+可樂+紅牛+豆子)", tags: ["Paranoia", "瀉藥", "清爽", "欣快", "提神"] },
+      { name: "Extreme Rhino(sour+汽油+碘+辣椒+甜甜圈+馬精液+紅牛+機油+感冒藥+止痛藥)", tags: ["清爽", "鎮靜", "高熱量", "運動感", "滑溜"] },
+      { name: "Fruity Dick(OG+Addy)", tags: ["平靜", "發人深省"] },
+      { name: "GP+addy+engineoil機油", tags: ["滑溜", "瀉藥", "誘發癲癇"] },
+	  { name: "GGEZ(sour+感冒藥)", tags: ["清爽", "鎮靜"] },
+	  { name: "Girl Scout Slime(OG+Addy+汽油)", tags: ["平靜", "發人深省", "有毒"] },
+	  { name: "Girl Scout Stink(Green+Addy+感冒藥+止痛藥+汽油+紅牛)", tags: ["臭味", "平靜", "有毒", "食慾大開", "偷偷摸摸"] },
+	  { name: "GP+Addy+機油", tags: ["Gingeritis", "滑溜", "發人深省"] },
+	  { name: "GP+Addy", tags: ["Gingeritis", "發人深省"] },
+	  { name: "GP+ENGINEOIL機油", tags: ["鎮靜", "滑溜"] },
+	  { name: "GP+iodine碘", tags: ["鎮靜", "Jennerising"] },
+	  { name: "GP+REDBULL", tags: ["食慾大開", "運動感"] },
+	  { name: "Granddaddy Grool(Green+甜甜圈+Addy+辣椒+豆子+Addy)", tags: ["提神", "高熱量", "迷濛", "辛辣", "發人深省"] },
+	  { name: "Miracle Dick(Green+甜甜圈+Addy+辣椒+豆子)", tags: ["提神", "高熱量", "迷濛", "辛辣", "Cyclopean"] },
+	  { name: "Pink Queef(Green+甜甜圈+Addy+辣椒)", tags: ["提神", "高熱量", "辛辣", "發人深省"] },
+	  { name: "Granddaddy Mint(GP+威爾鋼+汽油)", tags: ["有毒", "鎮靜", "熱帶雷霆"] },
+	  { name: "LA Ass(GP+威爾鋼)", tags: ["鎮靜", "熱帶雷霆"] },
+	  { name: "it is sour but spicy(sour+辣椒)", tags: ["清爽", "辛辣"] },
+	  { name: "LA Urkle(SOUR+豆子+威爾鋼)", tags: ["清爽", "迷濛", "熱帶雷霆"] },
+	  { name: "Miracle Crack(OG+汽油)", tags: ["平靜", "有毒"] },
+	  { name: "Miracle Dick(Green+甜甜圈+Addy+辣椒+豆子)", tags: ["提神", "高熱量", "迷濛", "辛辣", "Cyclopean"] },
+	  { name: "OG+REDBULL+DUNG馬精液", tags: ["平靜", "運動感", "愁眉苦臉"] },
+	  { name: "OG(OG+紅牛+威爾鋼)", tags: ["平靜", "偷偷摸摸", "熱帶雷霆"] },
+	  { name: "Purple Assblaster(OG+紅牛)", tags: ["平靜", "運動感"] },
+	  { name: "OG Cookies(OG+Addy+汽油+機油+馬精液+辣椒)", tags: ["平靜", "有毒", "滑溜", "辛辣", "觸電感"] },
+	  { name: "Stinky Balls(OG+Addy+汽油+機油+馬精液)", tags: ["平靜", "有毒", "滑溜", "觸電感", "愁眉苦臉"] },
+	  { name: "Sexy Grool(OG+Addy+汽油+機油)", tags: ["平靜", "有毒", "滑溜", "發人深省" ] },
+	  { name: "OGREDBULL+engine oil機油", tags: ["平靜", "運動感", "滑溜"] },
+	  { name: "OGREDBULLBANANA", tags: ["Gingeritis", "運動感", "偷偷摸摸"] },
+	  { name: "OGredbullbattery電池", tags: ["平靜", "運動感", "Bright-Eyed"] },
+	  { name: "OGREADBULLBEAN", tags: ["瀉藥", "迷濛", "亢奮"] },
+	  { name: "OGREDBULLCOLA", tags: ["平靜", "提神", "運動感"] },
+	  { name: "OGREDBULLCOLDMEDICINE", tags: ["食慾大開", "鎮靜", "Bright-Eyed"] },
+	  { name: "OG Shart(OG+Addy+汽油+機油+馬精液+辣椒+止痛藥+甜甜圈)", tags: ["平靜", "高熱量", "運動感", "滑溜", "偷偷摸摸"] },
+	  { name: "OGREDBULLiodine", tags: ["Balding", "運動感", "Jennerising"] },
+	  { name: "OGREDBULLSPYIC", tags: ["平靜", "欣快", "辛辣"] },
+	  { name: "Tokyo Urkle(OG+Addy+汽油+機油+馬精液+辣椒+止痛藥)", tags: ["平靜", "偷偷摸摸", "運動感", "滑溜", "Bright-Eyed"] },
+	  { name: "Sexy Cock(OG+香蕉)", tags: ["Gingeritis", "偷偷摸摸"] },
+	  { name: "Sexy Mint(OG+汽油+電池+豆子)", tags: ["有毒", "迷濛", "Bright-Eyed", "亢奮"] },
+	  { name: "Sweet Crack(OG+汽油+電池)", tags: ["平靜", "有毒", "Bright-Eyed"] },
+	  { name: "Shiny Monkey(OG+紅牛+Addy)", tags: ["平靜", "運動感", "發人深省"] },
+	  { name: "sour+addy", tags: ["清爽", "發人深省"] },
+	  { name: "sour+banana", tags: ["清爽", "Gingeritis"] },
+	  { name: "sour+dung馬精液", tags: ["清爽", "愁眉苦臉"] },
+	  { name: "sour+engineoil機油", tags: ["清爽", "滑溜"] },
+	  { name: "sour+iodine碘", tags: ["Jennerising", "發人深省"] },
+	  { name: "sourbattery電池", tags: ["清爽", "Bright-Eyed"] },
+	  { name: "sourbean", tags: ["清爽", "迷濛"] },
+	  { name: "sourcola", tags: ["清爽", "提神"] },
+	  { name: "sourGas", tags: ["清爽", "有毒"] },
+	  { name: "sourPainkeller(我打錯字是kill)", tags: ["清爽", "偷偷摸摸"] },
+	  { name: "sourredbull", tags: ["清爽", "運動感"] },
+	  { name: "SourWillgangColdMed", tags: ["清爽", "鎮靜", "熱帶雷霆"] },
+	  { name: "sourwillgang", tags: ["清爽", "熱帶雷霆"] },
+	  { name: "SourWillgangAddy", tags: ["清爽", "發人深省", "熱帶雷霆"] },
+	  { name: "SourWillgangBanana", tags: ["清爽", "Gingeritis", "熱帶雷霆"] },
+	  { name: "SourWillgangBattery", tags: ["清爽", "Bright-Eyed", "熱帶雷霆"] },
+	  { name: "SourWillgangCola", tags: ["清爽", "提神", "熱帶雷霆"] },
+	  { name: "SourWillgangEngineoil", tags: ["清爽", "滑溜", "熱帶雷霆"] },
+	  { name: "SourWillgangGas", tags: ["清爽", "有毒", "熱帶雷霆"] },
+	  { name: "SourWillgangIodine", tags: ["Jennerising", "發人深省", "熱帶雷霆"] },
+	  { name: "SourWillgangPainkiller", tags: ["清爽", "偷偷摸摸", "熱帶雷霆"] },
+	  { name: "SourWillgangRedbull", tags: ["清爽", "偷偷摸摸", "運動感"] },
+	  { name: "SourWillgangSperm馬精液", tags: ["清爽", "熱帶雷霆", "愁眉苦臉"] },
+	  { name: "SourWillgangSpicy", tags: ["清爽", "熱帶雷霆", "辛辣"] },
+	  { name: "Sweet Diamond(OG+紅牛+Addy+汽油)", tags: ["平靜", "欣快", "有毒"] },
+	  { name: "Thick Monkey(OG+可樂)", tags: ["平靜", "提神"] }, 
+	  { name: "Ultra Crack(OG+馬精液+辣椒+香蕉+可樂+紅牛+豆子+汽油+碘+感冒藥+機油+止痛藥)", tags: ["Gingeritis", "偷偷摸摸", "鎮靜", "誘發癲癇", "Balding"] },
+	  { name: "Dream Grool(OG+馬精液+辣椒+香蕉+可樂+紅牛+豆子+汽油+碘+感冒藥+機油)", tags: ["有毒", "Gingeritis", "偷偷摸摸", "鎮靜", "誘發癲癇"] }, 
+	  { name: "Ultra Grool(Green+紅牛)", tags: ["提神", "運動感"] },
+	  { name: "Wedding Ghost(sour+汽油+碘+辣椒+甜甜圈+馬精液+紅牛+機油+感冒藥+止痛藥+可樂)", tags: ["食慾大開", "清爽", "鎮靜", "高熱量", "運動感"] }, 
+	  { name: "WELL OIL(GP+威爾鋼+機油)", tags: ["鎮靜", "滑溜", "熱帶雷霆"] },
+	  
+    ];
+
+    const filterTags = [
+      "平靜", "清爽", "鎮靜", "提神", "高熱量", "觸電感", "愁眉苦臉", "熱帶雷霆",
+      "迷濛", "Bright-Eyed", "Balding", "Jennerising", "Gingeritis", "滑溜", "發人深省",
+      "食慾大開", "運動感", "有毒", "辛辣", "Cyclopean", "偷偷摸摸", "瀉藥", "亢奮",
+      "欣快", "Paranoia", "臭味", "誘發癲癇"
+    ];
+
+    const filterContainer = document.getElementById("filterContainer");
+    const productList = document.getElementById("productList");
+    const selectedTags = new Set();
+
+    filterTags.forEach(tag => {
+      const span = document.createElement("span");
+      span.className = "tag";
+      span.textContent = tag;
+      span.onclick = () => {
+        span.classList.toggle("selected");
+        if (selectedTags.has(tag)) {
+          selectedTags.delete(tag);
+        } else {
+          selectedTags.add(tag);
+        }
+        filterProducts();
+      };
+      filterContainer.appendChild(span);
+    });
+
+    function filterProducts() {
+      productList.innerHTML = "";
+      const filtered = products.filter(product => {
+        for (const tag of selectedTags) {
+          if (!product.tags.includes(tag)) return false;
+        }
+        return true;
+      });
+
+      if (filtered.length === 0) {
+        productList.innerHTML = "<p>沒有啦幹。</p>";
+        return;
+      }
+
+      filtered.forEach(product => {
+        const div = document.createElement("div");
+        div.className = "product";
+        div.innerHTML = `<strong>${product.name}</strong><br>特性：${product.tags.join(", ")}`;
+        productList.appendChild(div);
+      });
+    }
+
+    filterProducts();
+  </script>
+
+</body>
+</html>
